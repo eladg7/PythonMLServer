@@ -21,17 +21,21 @@ def home():
            "novels.</p> "
 
 
-@app.route('/drugByImage', methods=['POST'])
-def drug_by_image():
+@app.route('/drugByBox', methods=['POST'])
+def drug_by_box():
     # get file buffer
     file = request.get_json()['file']['data']
+    text_in_image = get_string_from_file(file)
+    return {}
+
+
+def get_string_from_file(file):
     # convert it into image
     image_stream = io.BytesIO(bytes(file))
     image_file = Image.open(image_stream)
     # todo delete later, this is just so we can see the picture
-    image_file.save("a_test.png")
-    print(pytesseract.image_to_string(image_file))
-    return {}
+    # image_file.save("a_test.png")
+    return pytesseract.image_to_string(image_file)
 
 
 app.run()
