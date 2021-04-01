@@ -2,7 +2,7 @@ import io
 
 import flask
 from PIL import Image
-from flask import request
+from flask import request, jsonify
 import pytesseract
 
 app = flask.Flask(__name__)
@@ -26,7 +26,7 @@ def drug_by_box():
     # get file buffer
     file = request.get_json()['file']['data']
     text_in_image = get_string_from_file(file)
-    return {}
+    return jsonify(text_in_image)
 
 
 def get_string_from_file(file):
