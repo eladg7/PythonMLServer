@@ -1,5 +1,5 @@
 import io
-
+import traceback
 import flask
 from PIL import Image
 from flask import request, jsonify
@@ -17,6 +17,7 @@ pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesse
 
 @app.route('/', methods=['GET'])
 def home():
+    # TODO remove this
     return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction " \
            "novels.</p> "
 
@@ -24,9 +25,25 @@ def home():
 @app.route('/drugByBox', methods=['POST'])
 def drug_by_box():
     # get file buffer
-    file = request.get_json()['file']['data']
-    text_in_image = get_string_from_file(file)
+    file = get_image_from_request(request.get_json())
+    if file is not None:
+        text_in_image = get_string_from_file(file)
+    else:
+        text_in_image = ""
     return jsonify(text_in_image)
+
+
+@app.route('/drugByImage', methods=['POST'])
+def drug_by_image():
+    # get file buffer
+    file = get_image_from_request(request.get_json())
+    if file is not None:
+        # predict data
+        # pill_properties = ...
+        pass
+    else:
+        pill_properties = {}
+    return jsonify(pill_properties)
 
 
 def get_string_from_file(file):
@@ -36,6 +53,17 @@ def get_string_from_file(file):
     # todo delete later, this is just so we can see the picture
     # image_file.save("a_test.png")
     return pytesseract.image_to_string(image_file)
+
+
+def get_image_from_request(req_json):
+    file = None
+    try:
+        file = req_json['file']['data']
+    except TypeError as err:
+        # print stack trace
+        traceback.print_tb(err.__traceback__)
+
+    return file
 
 
 app.run()
