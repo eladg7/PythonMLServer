@@ -5,24 +5,18 @@ from PIL import Image
 from flask import request, jsonify
 import pytesseract
 
+import consts
+
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
 # in order to use the tesseract, you will need to download it from https://github.com/UB-Mannheim/tesseract/wiki
 # and set tesseract.exe to PATH
 # after that, pip install pytesseract and pip install tesseract
-
-pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
-
-
-@app.route('/', methods=['GET'])
-def home():
-    # TODO remove this
-    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction " \
-           "novels.</p> "
+pytesseract.pytesseract.tesseract_cmd = consts.tesseract_cmd
 
 
-@app.route('/drugByBox', methods=['POST'])
+@app.route(consts.drug_by_box_route, methods=[consts.post_request])
 def drug_by_box():
     # get file buffer
     file = get_image_from_request(request.get_json())
@@ -33,16 +27,15 @@ def drug_by_box():
     return jsonify(text_in_image)
 
 
-@app.route('/drugByImage', methods=['POST'])
+@app.route(consts.drug_by_image_route, methods=[consts.post_request])
 def drug_by_image():
     # get file buffer
     file = get_image_from_request(request.get_json())
+    pill_properties = {}
     if file is not None:
         # predict data
         # pill_properties = ...
         pass
-    else:
-        pill_properties = {}
     return jsonify(pill_properties)
 
 
@@ -58,7 +51,7 @@ def get_string_from_file(file):
 def get_image_from_request(req_json):
     file = None
     try:
-        file = req_json['file']['data']
+        file = req_json[consts.file_in_json][consts.data_in_json]
     except TypeError as err:
         # print stack trace
         traceback.print_tb(err.__traceback__)
