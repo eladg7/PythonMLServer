@@ -1,0 +1,6 @@
+drug_by_box_route = '/drugByBox'
+drug_by_image_route = '/drugByImage'
+file_in_json = 'file'
+data_in_json = 'data'
+post_request = 'POST'
+tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
