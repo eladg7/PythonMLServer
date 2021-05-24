@@ -1,11 +1,13 @@
 import io
 import traceback
+
 import flask
+import pytesseract
 from PIL import Image
 from flask import request, jsonify
-import pytesseract
 
 import consts
+from MLHandler import MLHandler
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -19,9 +21,10 @@ pytesseract.pytesseract.tesseract_cmd = consts.tesseract_cmd
 @app.route(consts.drug_by_box_route, methods=[consts.post_request])
 def drug_by_box():
     # get file buffer
-    file = get_image_from_request(request.get_json())
+    file = get_image_file_from_request(request.get_json())
     if file is not None:
-        text_in_image = get_string_from_file(file)
+        image_file = get_image_from_file(file)
+        text_in_image = pytesseract.image_to_string(image_file)
     else:
         text_in_image = ""
     return jsonify(text_in_image)
@@ -30,25 +33,21 @@ def drug_by_box():
 @app.route(consts.drug_by_image_route, methods=[consts.post_request])
 def drug_by_image():
     # get file buffer
-    file = get_image_from_request(request.get_json())
+    file = get_image_file_from_request(request.get_json())
     pill_properties = {}
     if file is not None:
-        # predict data
-        # pill_properties = ...
-        pass
+        # predict properties
+        image_file = get_image_from_file(file)
+        pill_properties = MLHandler.get_pill_properties(image_file)
     return jsonify(pill_properties)
 
 
-def get_string_from_file(file):
-    # convert it into image
+def get_image_from_file(file):
     image_stream = io.BytesIO(bytes(file))
-    image_file = Image.open(image_stream)
-    # todo delete later, this is just so we can see the picture
-    # image_file.save("a_test.png")
-    return pytesseract.image_to_string(image_file)
+    return Image.open(image_stream)
 
 
-def get_image_from_request(req_json):
+def get_image_file_from_request(req_json):
     file = None
     try:
         file = req_json[consts.file_in_json][consts.data_in_json]
