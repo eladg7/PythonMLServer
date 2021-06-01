@@ -26,7 +26,7 @@ class MLHandler:
         3 - view as batch x height x width x channel
         4 - move to cuda
         5 - set as float (each pixel int -> float)
-        6 - permute to from NHWC to NCHW
+        6 - permute from NHWC to NCHW
         :param image: image to prepare
         :return: image ready for prediction
         """
